@@ -7,19 +7,19 @@ function Login() {
         <div>
             <h1>Login</h1>
             <form   action={"/hello"} method={"POST"}>
-                <div  >
-                    <label htmlFor={"name"}>Name</label>
-                    <input type={"text"} name={"username"} />
+                <div className="test"  >
+                    <label   htmlFor={"name"}>Name</label>
+                    <input  type={"text"} name={"username"} />
                 </div>
-                <div>
+                <div className="test">
                     <label htmlFor={"email"}>Email</label>
                     <input type={"email"} name={"email"} />
                 </div>
-                <div>
-                    <label htmlFor={"password"}>Password</label>
+                <div className="test">
+                    <label htmlFor={"password"}>password</label>
                     <input type={"text"} name={"password"} />
                 </div>
-                <div>
+                <div className="test">
                     <label htmlFor={"color"}>Color</label>
                     <input type={"text"} name={"color"} />
                     
