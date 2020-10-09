@@ -1,38 +1,30 @@
-
 import * as React from "react";
-
 
 function Login() {
     return (
-        <div>
+        <div className={"Login"}>
             <h1>Login</h1>
-            <form   action={"/hello"} method={"POST"}>
-                <div className="test"  >
-                    <label   htmlFor={"name"}>Name</label>
-                    <input  type={"text"} name={"username"} />
+            <form action={"/hello"} method={"POST"}>
+                <div>
+                    <label htmlFor={"name"}>Name</label>
+                    <input type={"text"} name={"username"} />
                 </div>
-                <div className="test">
+                <div>
                     <label htmlFor={"email"}>Email</label>
                     <input type={"email"} name={"email"} />
                 </div>
-                <div className="test">
-                    <label htmlFor={"password"}>password</label>
+                <div>
+                    <label htmlFor={"password"}>Password</label>
                     <input type={"text"} name={"password"} />
                 </div>
-                <div className="test">
+                <div>
                     <label htmlFor={"color"}>Color</label>
                     <input type={"text"} name={"color"} />
-                    
                 </div>
                 <input type={"submit"} value={"Add Member"} />
-                
-                         </form>
+            </form>
         </div>
-      
-       
-      
     );
 }
-
 
 export default Login;

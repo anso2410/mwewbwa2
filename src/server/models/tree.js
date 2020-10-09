@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const treeSchema = mongoose.Schema({
+const treeSchema = new mongoose.Schema({
     full_name: {type: String, required: true},
     given_name: {type: String, required: true, default: null},
     size: {
@@ -19,7 +19,7 @@ const treeSchema = mongoose.Schema({
     comments: {
         content: {type: String},
         user_id: {type: String},
-        datetime: {type: Date, default: Date.now()},
+        datetime: {type: Date, default: Date.now},
     },
 });
 

@@ -14,7 +14,6 @@ const HelloWorld = () => (
         <hr />
         <small>{"becode/trouvkach"}</small>
     </div>
-     
 );
 
 export default HelloWorld;

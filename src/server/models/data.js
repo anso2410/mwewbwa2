@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const dataSchema = mongoose.Schema({
+const dataSchema = new mongoose.Schema({
     y_lambert72: {type: Number, required: true},
     arbotag: {type: Number, required: true},
     date_donnees: {type: Date, required: true},

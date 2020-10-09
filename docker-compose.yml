@@ -9,7 +9,8 @@ services:
       - './package.json:/src/app/package.json'
       - './node_modules:/src/app/node_modules'
       - './bin:/src/app/bin'
-      -  "./.env:/src/app/.env"
+      -  './.env:/src/app/.env'
+     
     expose:
       - '12345'
       - '9229'

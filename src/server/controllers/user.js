@@ -1,36 +1,72 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const { validationResult } = require('express-validator');
+const { JWT_SECRET } = process.env;
 
 const User = require("../models/user");
 
-exports.signup = (req, res, next) => {
-    bcrypt
-        .hash(req.body.password, 10)
-        .then(hash => {
-            const user = new User({
-                username: req.body.username,
-                email: req.body.email,
-                password: hash,
-                color: req.body.color,
-            });
+exports.signup = async (req, res, next) => {
+    // Check if any error in the form sent by frontend
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
 
-            if (
-                !user.username ||
-                !user.email ||
-                !user.password ||
-                !user.color
-            ) {
-                return res
-                    .status(400)
-                    .json({error: "Please fill up all fields!"});
+    // Get request body from frontend
+    const { username, email, password, color } = req.body;
+
+    try {
+        // Check if the user's already registered in the db
+        let user = await User.findOne({email: email});
+        if (user) {
+            return res.status(400).json({errors: [{msg: "User already exists!"}]});
+        }
+
+        // Create a gravatar image for new user
+        const avatar = gravatar.url(email, {
+            s: '100',
+            r: 'pg',
+            d: 'mm'
+        });
+            // Create bcrypt hash
+        let hash = await bcrypt.hash(password, 10);
+
+        // Create user
+        user = new User({
+            username: username,
+            email: email,
+            password: hash,
+            color: color,
+            avatar: avatar
+        });
+
+        // Insert new user into db
+        await user.save(); // Renvoie une promesse avec le nouveau document User créé (user.id est donc accessble)
+
+        // Send directly token of authentification
+        const payload = {
+            user: {
+                id: user.id
             }
-            // Register to DB
-            user.save()
-                .then(() => res.status(201).json({message: "User created!"}))
-                .catch(error => res.status(500).json({error}));
-        })
-        .catch(error => res.status(500).json({error}));
+        }
+
+        jwt.sign(
+            payload,
+            JWT_SECRET,
+            {expiresIn: "24h"},
+            (err, token) => {
+                if (err)
+                    throw err;
+                res.json({ msg: "User created!", token: token });
+            }
+            );
+    } catch(err) {
+        console.error(err.message);
+        res.status(500).json({ errors: [{ msg: "Server error"}]});
+    }
 };
+
 /*
 exports.signup = (req, res, next) => {
     User.find().estimatedDocumentCount()
@@ -94,6 +130,24 @@ exports.login = (req, res, next) => {
                 .catch(error => res.status(500).json({error}));
         })
         .catch(error => res.status(500).json({error}));
+};
+
+exports.getAllUsers = async (req, res, next) => {
+    try {
+        const users = await User.find().select('-password');
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(404).json({error: err});
+    }
+};
+
+exports.getOneUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(404).json({error: err});
+    }
 };
 
 exports.updateUser = (req, res, next) => {

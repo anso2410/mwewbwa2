@@ -7,10 +7,13 @@ exports.getAllTrees = (req, res, next) => {
         .catch(err => res.status(400).json({err}));
 };
 
-exports.getOneTree = (req, res, next) => {
-    Tree.findOne({_id: req.params.id})
-        .then(tree => res.status(200).json(tree))
-        .catch(err => res.status(404).json({err}));
+exports.getOneTree = async (req, res, next) => {
+    try {
+        const tree = await Tree.findById(req.params.id);
+        return res.status(200).json(tree);
+    } catch (err) {
+        return res.status(404).json({err});
+    }
 };
 
 exports.updateOneThree = (req, res, next) => {
@@ -28,8 +31,8 @@ exports.updateOneThree = (req, res, next) => {
             res.json({msg: "Tree updated!"});
         })
         .catch();
-    // update owner
-    // update lock status
+    // update owner - achat de l'arbre
+    // update lock status (seulement sur arbres possédés)
     // update comments
 };
 

@@ -1,16 +1,7 @@
-/* becodeorg/mwenbwa
- *
- * /src/server/index.js - Server entry point
- *
- * coded by leny@BeCode
- * started at 18/05/2020
- */
-
 // Import < ES6 modules syntax, not from CommonJS, which is const express = require(''). CommonJS is the only one working for node.js, but Babel makes it possible to work with ES6 syntax for modules, even for node.
 import express from "express";
 import path from "path";
-import bodyParser from "body-parser";
-import mongoose from "mongoose";
+import connectDB from "./config/db";
 
 // Import des routes
 const treeRoutes = require("./routes/tree");
@@ -23,30 +14,33 @@ const User = require("./models/user");
 const app = express();
 
 // Process env variables
-const {APP_PORT, DB_CLUSTER, DB_DATABASE, DB_USER, DB_PASSWORD} = process.env;
+const {APP_PORT} = process.env;
+const PORT = process.env.PORT || APP_PORT;
 
-// Connection to MongoDB
-mongoose
-    .connect(
-        `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.jw1ce.mongodb.net/${DB_DATABASE}?retryWrites=true&w=majority`,
-        {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        },
-    )
-    .then(() => console.log("Connection to MongoDB successful!"))
-    .catch(() => console.log("Connection to MongoDB unsuccessful!"));
+// Connect to MongoDB
+connectDB();
 
-// Middlewares
-app.use(bodyParser.json());
-//app.use(express.json());
+// Init Middlewares
+app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
+// Defining Headers so the frontend can communicate with the backend
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    next();
+});
 
 // Set le serveur statique servant le bin/client pour les fichiers dont le front (qui est statique) a besoin : tous les HTML et le CSS
 // (permet d'avoir accès à l'index.html pour la route "/" notamment.
 app.use(express.static(path.resolve(__dirname, "../../bin/client")));
 
 // API Test
+app.get("/", (req, res) => {
+    res.send('API Running.');
+});
+
 app.get("/users", (req, res) => {
     User.find()
         .then(users => res.status(200).json(users))
@@ -125,14 +119,14 @@ app.delete("/hello/:id", (req, res) => {
         .catch(() => res.status(400).json({error: "No user found!"}));
 });
 
-// Routes attendues par le frontend
+// Define routes
 app.use("/api/tree", treeRoutes);
-app.use("/api/auth", userRoutes);
-//app.post('/api/auth', (req, res, next) => {
-//   res.send(req.body);
-//});
+app.use("/api/user", userRoutes);
+/*app.use("/api/leaderboard", userRoutes);
+app.use("/api/gamelog", userRoutes);*/
+
 
 // App listening on port
-app.listen(APP_PORT, () =>
-    console.log(`🚀 Server is listening on port ${APP_PORT}.`),
+app.listen(PORT, () =>
+    console.log(`🚀 Server is listening on port ${PORT}.`),
 );
